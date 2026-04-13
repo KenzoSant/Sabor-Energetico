@@ -10,6 +10,11 @@ const ProductSlider = ({ items, className = "" }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(4);
   const trackRef = useRef(null);
+  const containerRef = useRef(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const startPercent = useRef(0);
+  const dragThreshold = 5;
 
   useEffect(() => {
     const handleResize = () => {
@@ -24,7 +29,6 @@ const ProductSlider = ({ items, className = "" }) => {
 
   const totalPages = Math.ceil(items.length / itemsPerPage);
 
-  // Reset page if resizing reduces total pages
   useEffect(() => {
     if (currentPage >= totalPages) {
       setCurrentPage(Math.max(0, totalPages - 1));
@@ -33,25 +37,78 @@ const ProductSlider = ({ items, className = "" }) => {
 
   const goToPage = (pageIndex) => {
     setCurrentPage(pageIndex);
-    // xPercent is relative to the track's own width
-    // Track width = (items.length / itemsPerPage) * 100% of container
-    // To shift by 1 container width = (itemsPerPage / items.length) * 100% of track
     const movePercent = (pageIndex * itemsPerPage * 100) / items.length;
     gsap.to(trackRef.current, {
       xPercent: -movePercent,
       duration: 0.8,
-      ease: "power2.inOut"
+      ease: "power3.out"
     });
   };
 
-  // Track width: enough to hold all items at the correct size
+  const handleDragStart = (e) => {
+    isDragging.current = true;
+    startX.current = e.pageX || e.touches[0].pageX;
+    startPercent.current = gsap.getProperty(trackRef.current, "xPercent") || 0;
+    
+    gsap.killTweensOf(trackRef.current);
+    containerRef.current.style.cursor = 'grabbing';
+    
+    window.addEventListener('mousemove', handleDragMove);
+    window.addEventListener('mouseup', handleDragEnd);
+    window.addEventListener('touchmove', handleDragMove, { passive: false });
+    window.addEventListener('touchend', handleDragEnd);
+  };
+
+  const handleDragMove = (e) => {
+    if (!isDragging.current) return;
+    const currentX = e.pageX || e.touches[0].pageX;
+    const diff = currentX - startX.current;
+    
+    if (Math.abs(diff) > dragThreshold) {
+      if (e.cancelable) e.preventDefault();
+      const trackWidth = trackRef.current.offsetWidth;
+      const diffPercent = (diff / trackWidth) * 100;
+      
+      gsap.set(trackRef.current, {
+        xPercent: startPercent.current + diffPercent
+      });
+    }
+  };
+
+  const handleDragEnd = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    containerRef.current.style.cursor = 'grab';
+    
+    window.removeEventListener('mousemove', handleDragMove);
+    window.removeEventListener('mouseup', handleDragEnd);
+    window.removeEventListener('touchmove', handleDragMove);
+    window.removeEventListener('touchend', handleDragEnd);
+
+    const currentPercent = gsap.getProperty(trackRef.current, "xPercent");
+    const itemPercent = 100 / items.length;
+    const pagePercent = itemPercent * itemsPerPage;
+    
+    const closestPage = Math.round(-currentPercent / pagePercent);
+    const cappedPage = Math.max(0, Math.min(closestPage, totalPages - 1));
+    
+    goToPage(cappedPage);
+  };
+
   const trackWidthPercent = (items.length / itemsPerPage) * 100;
-  // Each item width as percentage of the track
   const itemWidthPercent = 100 / items.length;
 
   return (
-    <div className={`product-slider-container ${className}`}>
-      <div className="slider-overflow">
+    <div 
+      className={`product-slider-container ${className}`} 
+      ref={containerRef}
+      style={{ cursor: 'grab', userSelect: 'none', touchAction: 'pan-y' }}
+    >
+      <div 
+        className="slider-overflow"
+        onMouseDown={handleDragStart}
+        onTouchStart={handleDragStart}
+      >
         <div
           className="slider-track"
           ref={trackRef}
@@ -64,7 +121,7 @@ const ProductSlider = ({ items, className = "" }) => {
               style={{ width: `${itemWidthPercent}%` }}
             >
               <div className="product-card">
-                <img src={product.imagem} alt={product.nome} className="product-image" />
+                <img src={product.imagem} alt={product.nome} className="product-image" draggable="false" />
                 <div className="product-info">
                   <h3>{product.nome}</h3>
                   <p>{product.flavor}</p>
@@ -76,7 +133,6 @@ const ProductSlider = ({ items, className = "" }) => {
         </div>
       </div>
 
-      {/* Indicadores */}
       <div className="slider-dots">
         {[...Array(totalPages)].map((_, i) => (
           <button
