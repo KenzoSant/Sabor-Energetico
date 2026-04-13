@@ -1,8 +1,8 @@
-# 🥃 Mansão Maromba - Premium Landing Page
+# :clinking_glasses: Mansão Maromba 
 
 <div align="center">
 
-<img width="1890" height="1077" alt="Mansão Maromba Hero Cover" src="https://via.placeholder.com/1200x600/0d0d0d/e2b659?text=Mans%C3%A3o+Maromba+-+Sabor+Inexplic%C3%A1vel" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/97392840-9f1d-4c98-ad1d-a0fa1e289437" />
 
 **Uma plataforma web editorial, imersiva e de alta performance criada para a linha de bebidas premium da Mansão Maromba.**
 
