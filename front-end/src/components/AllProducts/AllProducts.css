@@ -1,0 +1,64 @@
+/* AllProducts.css */
+
+.all-products-page {
+  padding: 120px 0 80px 0;
+  background-color: var(--text-primary);
+  color: var(--bg-deep);
+  min-height: 100vh;
+}
+
+.all-products-header {
+  margin-bottom: 60px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.btn-back {
+  background: transparent;
+  border: 1px solid #333;
+  color: var(--bg-deep);
+  padding: 10px 24px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  left: 0;
+  top: 5px;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background: var(--primary);
+  color: #FFF;
+  border-color: var(--primary);
+}
+
+.all-products-header .header-titles {
+  max-width: 600px;
+}
+
+.all-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 40px;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .all-products-header {
+    margin-top: 40px;
+  }
+  .btn-back {
+    position: relative;
+    left: auto;
+    top: auto;
+    margin-bottom: 30px;
+    align-self: flex-start;
+  }
+}
