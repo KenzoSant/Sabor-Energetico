@@ -28,6 +28,7 @@
 .hero-container {
   position: relative;
   z-index: 2; /* Content above bg-text */
+  width: 100%;
 }
 
 .hero-content {
